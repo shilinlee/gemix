@@ -66,6 +66,7 @@ type RunInfo struct {
 }
 
 type RunAction struct {
+	User   string
 	Info   *RunInfo
 	Remote *config.RemoteHost
 }
@@ -92,7 +93,7 @@ func (e *GeminiExecutor) ExecRunAction(action *RunAction, errChan chan error) st
 	defer sshSession.Close()
 
 	// generate command
-	command := fmt.Sprintf("chmod a+x %s; /bin/bash %s", action.Info.Args[2], action.Info.ScriptPath)
+	command := fmt.Sprintf(`chmod a+x %s; chroot --userspec %s "/" /bin/bash -c %s`, action.Info.Args[2], action.User, action.Info.ScriptPath)
 	for _, arg := range action.Info.Args {
 		command = fmt.Sprintf("%s %s", command, arg)
 	}
